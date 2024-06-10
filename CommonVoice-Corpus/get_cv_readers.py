@@ -20,7 +20,7 @@ def get_speakers():
     genders = []
 
     chunksize = 10000
-    for chunk in pd.read_table(filepath_or_buffer="_others.txt", encoding="utf-8", sep="\\t", chunksize=chunksize, header=0):
+    for chunk in pd.read_table(filepath_or_buffer="../data/_others.txt", encoding="utf-8", sep="\\t", chunksize=chunksize, header=0):
         for index, line in chunk.iterrows():
             speakers.append([line["client_id"], line["age"], line["gender"]])
             temp_speakers.add(line["client_id"])
@@ -43,7 +43,7 @@ def fix_encoding():
     fixed_content = content.encode('latin_1').decode('utf-8')
 
     # Write the fixed content back to the file
-    with open('_others.txt', 'w', encoding="windows-1252") as f:
+    with open('../data/_others.txt', 'w', encoding="windows-1252") as f:
         f.writelines(fixed_content)
 
 
@@ -51,7 +51,7 @@ def fix_encoding2():
     with open(path_to_others, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    with open('_others.txt', 'w', encoding="utf-8") as f:
+    with open('../data/_others.txt', 'w', encoding="utf-8") as f:
         f.writelines(content)
 
 fix_encoding2()
