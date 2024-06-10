@@ -22,24 +22,19 @@ def get_speakers():
     # with pd.read_table(filepath_or_buffer=path_to_validated, encoding="utf-8", sep="\\t", chunksize=chunksize, header=0) as reader:
     with pd.read_table(filepath_or_buffer="../data/_others.txt", encoding="utf-8", sep="\\t", chunksize=chunksize, header=0) as reader:
         for chunk in reader:
-            for index, line in chunk.iterrows():
-                if line["gender"] not in GENDERS:
-                    chunk.drop(index)
-                    continue
+            chunk = chunk[chunk['gender'].isin(GENDERS) & chunk['age'].isin(AGES)]
 
-                if line["age"] not in AGES:
-                    chunk.drop(index)
-                    continue
+            temp_speakers.append([chunk["client_id"], chunk["age"], chunk["gender"]])
 
-                temp_speakers.append([line["client_id"], line["age"], line["gender"]])
+        # temp_speakers = np.squeeze(np.unique(np.array([np.sort(sub) for sub in temp_speakers]), axis=0))
+        # speakers.append(temp_speakers)
+        # speakers = pd.concat(chunk)
 
-        temp_speakers = np.squeeze(np.unique(np.array([np.sort(sub) for sub in temp_speakers]), axis=0))
-        speakers.append(temp_speakers)
+    speakers = speakers.drop_duplicates().sort_values(by=['client_id', 'age', 'gender'])
+    #speakers = np.squeeze(np.unique(np.array([np.sort(sub) for sub in speakers]), axis=0))
 
-    speakers = np.squeeze(np.unique(np.array([np.sort(sub) for sub in speakers]), axis=0))
-
-    speakers = pd.DataFrame(data=speakers, columns=["client_id", "age", "gender"])
-    speakers.to_csv(header=speakers.columns, path_or_buf="../data/Others-CommonVoice-Speakers.csv", mode="w")
+    # speakers = pd.DataFrame(data=speakers, columns=["client_id", "age", "gender"])
+    speakers.to_csv(header=speakers.columns, path_or_buf="../data/Others2-CommonVoice-Speakers.csv", mode="a")
 
 def fix_encoding():
     # Read the file with the incorrect encoding
