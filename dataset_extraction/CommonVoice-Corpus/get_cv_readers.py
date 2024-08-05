@@ -117,15 +117,11 @@ def get_each_speakers_clips(read_path: str, write_path: str = "", sep: str = "")
                 'path': row['path'],
                 'sentence_id': row['sentence_id'],
                 'sentence': row['sentence'],
-                'sentence_domain': row['sentence_domain'],
                 'up_votes': row['up_votes'],
                 'down_votes': row['down_votes'],
                 'age': row['age'],
                 'gender': row['gender'],
                 'accents': row['accents'],
-                'variant': row['variant'],
-                'locale': row['locale'],
-                'segment': row['segment']
             }
             clips.append(clip_info)
 
@@ -168,16 +164,26 @@ def get_train_datasets(read_path: str, write_path: str = ""):
     # iterate over different amounts of rows to drop
     for drop in drop_count:
         current_train_set = []
+        remainders_train_set = []
+
         # drop rows and append modified to current_train_set
         for age, group in grouped:
+            deleted_entries = group
             try:
                 modified_group = group.drop(group.index[0:drop])
+                deleted_entries = group.drop(group.index[drop:group.size])
+
             except IndexError:
                 modified_group = group.drop(group.index[0:group.size])
+
             current_train_set.append(modified_group)
+            remainders_train_set.append(deleted_entries)
 
         current_train_set = pd.concat(current_train_set, ignore_index=True)
-        current_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Trainset.csv', header=True, index=True)
+        current_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Speakers-Removed-Trainset.csv', header=True, index=True)
+
+        remainders_train_set = pd.concat(remainders_train_set, ignore_index=True)
+        remainders_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Speakers-Removed-Testset.csv', header=True, index=True)
 
     # iterate over different amounts of rows to drop
     for drop in drop_count:
@@ -189,7 +195,7 @@ def get_train_datasets(read_path: str, write_path: str = ""):
             deleted_entries = group
             try:
                 modified_group = group.drop(group.index[drop:group.size])
-                deleted_entries = deleted_entries.drop(deleted_entries.index[0:drop-1])
+                deleted_entries = group.drop(group.index[0:drop-1])
 
             except IndexError:
                 modified_group = group.drop(group.index[0:group.size])
@@ -198,9 +204,10 @@ def get_train_datasets(read_path: str, write_path: str = ""):
             remainders_train_set.append(deleted_entries)
 
         current_train_set = pd.concat(current_train_set, ignore_index=True)
+        current_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Speakers-Remaining-Trainset.csv', header=True, index=True)
+
         remainders_train_set = pd.concat(remainders_train_set, ignore_index=True)
-        current_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Remaining-Trainset.csv', header=True, index=True)
-        remainders_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Remaining-Trainset.csv', header=True, index=True)
+        remainders_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Speakers-Remaining-Testset.csv', header=True, index=True)
 
 
 def get_union_dfs_val_train():
@@ -214,49 +221,61 @@ def get_union_dfs_val_train():
 
     unique_female_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
 
-    unique_female_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/Union_Train-Validated/unique_female_speakers.csv",
+    unique_female_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/_Union_Train-Validated/unique_female_speakers.csv",
                                            encoding="UTF-8", header=True)
-    unique_male_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/Union_Train-Validated/unique_male_speakers.csv",
+    unique_male_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/_Union_Train-Validated/unique_male_speakers.csv",
                                          encoding="UTF-8", header=True)
 
-# get_union_dfs_val_train()
+# TODO TEST.TSV und DEV.TSV
+# TODO alle zu einem datensatz gelöschten Speaker in einem separaten Dataset
+# TODO alle zu einem datensatz gehörigen Audioclips + Alterskategorien
 
-# get_gender_age_distribution_chart("../_datasets/CommonVoice/Union_Train-Validated/unique_male_speakers.csv")
-# get_gender_age_distribution_chart("../_datasets/CommonVoice/Union_Train-Validated/unique_female_speakers.csv")
+def finished_tasks():
+    pass
+    # get_union_dfs_val_train()
 
-# do_all("D:\\Sprachdaten\\cv-corpus-17.0-2024-03-15-de\\cv-corpus-17.0-2024-03-15\\de\\train.tsv")
+    # get_gender_age_distribution_chart("../_datasets/CommonVoice/_Union_Train-Validated/unique_male_speakers.csv")
+    # get_gender_age_distribution_chart("../_datasets/CommonVoice/_Union_Train-Validated/unique_female_speakers.csv")
 
-# fix_encoding()
-# get_speakers(path, "../data/Validated-Common-Voice-Speakers.csv")
-# remove_duplicates_total_with_pandas("../data/Validated-Common-Voice-Speakers.csv", "../data/Validated-Common-Voice-Speakers.csv")
+    # do_all("D:\\Sprachdaten\\cv-corpus-17.0-2024-03-15-de\\cv-corpus-17.0-2024-03-15\\de\\train.tsv")
 
-# get all clips from all speakers
-# get_each_speakers_clips(read_path=PATH + VALIDATED)
+    # fix_encoding()
+    # get_speakers(path, "../data/Validated-Common-Voice-Speakers.csv")
+    # remove_duplicates_total_with_pandas("../data/Validated-Common-Voice-Speakers.csv", "../data/Validated-Common-Voice-Speakers.csv")
 
-# filter the CV-Corpus for quality
-# dataset_quality_filter(read_path=PATH + VALIDATED)
-# dataset_quality_filter(read_path='../data/CV-AllSpeakers-CorrespondingClips.csv')
+    # get all clips from all speakers
+    # get_each_speakers_clips(read_path=PATH + VALIDATED)
 
-# get the gender and age distribution charts for male and female
-# get_gender_age_distribution_chart("../data/Validated-Common-Voice-Speakers.csv")
-# get_gender_age_distribution_chart("../data/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
-# get_gender_age_distribution_chart("../data/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
+    # filter the CV-Corpus for quality
+    # dataset_quality_filter(read_path=PATH + VALIDATED)
+    # dataset_quality_filter(read_path='../data/CV-AllSpeakers-CorrespondingClips.csv')
 
-# print("")
+    # get the gender and age distribution charts for male and female
+    # get_gender_age_distribution_chart("../data/Validated-Common-Voice-Speakers.csv")
+    # get_gender_age_distribution_chart("../data/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
+    # get_gender_age_distribution_chart("../data/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
 
-# get_train_datasets("../data/male_CV-FilteredAges-UniqueSpeakers.csv")
-# get_train_datasets("../data/female_CV-FilteredAges-UniqueSpeakers.csv")
+    # print("")
+
+    # get_train_datasets("../data/male_CV-FilteredAges-UniqueSpeakers.csv")
+    # get_train_datasets("../data/female_CV-FilteredAges-UniqueSpeakers.csv")
+
+    # get_train_datasets("../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Train.tsv/')
+    # get_train_datasets("../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Train.tsv/')
+    #
+    # get_train_datasets("../_datasets/CommonVoice/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Validated.tsv/')
+    # get_train_datasets("../_datasets/CommonVoice/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Validated.tsv/')
+
+    # trainsets = glob.glob("../data/Trainsets/*.csv")
+    # for file in trainsets:
+    #     get_each_speakers_clips(file)
+
+    # df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-female-50-Trainset.csv')
+    # df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
+    # df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
 
 import glob
 
-# trainsets = glob.glob("../data/Trainsets/*.csv")
-# for file in trainsets:
-#     get_each_speakers_clips(file)
-
-# df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-female-50-Trainset.csv')
-# df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
-# df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
 
 
-##### alle zu einem datensatz gelöschten Speaker in einem separaten Dataset
-##### alle zu einem datensatz gehörigen Audioclips + Alterskategorien
+
