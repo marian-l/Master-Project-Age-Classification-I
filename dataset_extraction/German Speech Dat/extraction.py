@@ -2,6 +2,7 @@ import glob
 import os
 import pandas as pd
 import xml.etree.ElementTree as ET
+from matplotlib import pyplot as plt
 
 
 def parse_xml(file_path):
@@ -40,17 +41,28 @@ def get_distribution_of_speakers():
 
     df.drop_duplicates(subset='speaker_id', inplace=True)
 
-    print("")
+    plt.rcParams["figure.figsize"] = [11, 3.50]
+    plt.rcParams["figure.autolayout"] = True
+
+    age_distribution = df.groupby('ageclass').size()
+    age_distribution.plot(kind='bar')
+
+    plt.title('Age Distribution')
+    plt.xlabel('Age Category')
+    plt.ylabel('Number of Occurrences')
+
+    plt.show()
+
+    return df
 
 directory_path = "D:\Sprachdaten\german-speechdata-package-v2\german-speechdata-package-v2\\train"
-
-get_distribution_of_speakers()
+df = get_distribution_of_speakers()
 
 directory_path = "D:\Sprachdaten\german-speechdata-package-v2\german-speechdata-package-v2\\dev"
-get_distribution_of_speakers()
+df = get_distribution_of_speakers()
 
 directory_path = "D:\Sprachdaten\german-speechdata-package-v2\german-speechdata-package-v2\\test"
-get_distribution_of_speakers()
+df = get_distribution_of_speakers()
 
 # Directory containing the XML files
 
