@@ -101,11 +101,11 @@ def dataset_quality_filter(read_path: str, write_path: str = "", sep: str = None
     del female_df
 
 
-def get_each_speakers_clips(read_path: str, write_path: str = "", sep: str = ""):
+def get_each_speakers_clips(read_path: str, write_path: str = "", sep: str = None):
     if sep != None:
-        df = pd.read_csv(filepath_or_buffer=read_path, encoding='UTF-8', sep=sep)
+        df = pd.read_csv(filepath_or_buffer=read_path, encoding='utf-8', sep=sep)
     else:
-        df = pd.read_csv(filepath_or_buffer=read_path, encoding='UTF-8')
+        df = pd.read_csv(filepath_or_buffer=read_path, encoding='utf-8', quotechar='"', sep=',')
 
     speakers_clips = {}
 
@@ -142,7 +142,7 @@ def get_each_speakers_clips(read_path: str, write_path: str = "", sep: str = "")
     else:
         current_info = f"{parts[3]}-{parts[4]}"
     # df.to_csv('../data/CV-AllSpeakers-CorrespondingClips.csv')
-    df.to_csv('../_datasets' + write_path + 'ClipsPerDataset/CV-' + current_info + '-CorrespondingClips.csv')
+    df.to_csv('../_datasets' + write_path + current_info + '-CorrespondingClips.csv')
 
 
 def get_train_datasets(read_path: str, write_path: str = ""):
@@ -210,25 +210,23 @@ def get_train_datasets(read_path: str, write_path: str = ""):
         remainders_train_set.to_csv(path_or_buf='../_datasets' + write_path + 'Trainsets/CV-' + gender + '-' + str(drop) + '-Speakers-Remaining-Testset.csv', header=True, index=True)
 
 
-def get_union_dfs_val_train():
-    df_1 = pd.read_csv("../_datasets/CommonVoice/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
-    df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
-
-    unique_male_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
-
-    df_1 = pd.read_csv("../_datasets/CommonVoice/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
-    df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
-
-    unique_female_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
-
-    unique_female_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/_Union_Train-Validated/unique_female_speakers.csv",
-                                           encoding="UTF-8", header=True)
-    unique_male_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/_Union_Train-Validated/unique_male_speakers.csv",
-                                         encoding="UTF-8", header=True)
-
-# TODO TEST.TSV und DEV.TSV
 # TODO alle zu einem datensatz gelöschten Speaker in einem separaten Dataset
 # TODO alle zu einem datensatz gehörigen Audioclips + Alterskategorien
+
+def find_intersecting_speakers(set1: str, set2: str):
+    df1 = pd.read_csv(set1)
+    df2 = pd.read_csv(set2)
+
+    validated_speakers = set(df1['client_id'].unique())
+    test_speakers = set(df2['client_id'].unique())
+
+    overlapping_speakers = validated_speakers.intersection(test_speakers)
+
+    if overlapping_speakers:
+        print("Overlapping speakers found between " + set1 + " and " + set2)
+    else:
+        print("No overlapping speakers found between " + set1 + " and " + set2)
+
 
 def finished_tasks():
     pass
@@ -247,24 +245,102 @@ def finished_tasks():
     # get_each_speakers_clips(read_path=PATH + VALIDATED)
 
     # filter the CV-Corpus for quality
-    # dataset_quality_filter(read_path=PATH + VALIDATED)
     # dataset_quality_filter(read_path='../data/CV-AllSpeakers-CorrespondingClips.csv')
 
-    # get the gender and age distribution charts for male and female
+    ###### get the sub-datasets
+    # dataset_quality_filter(read_path=PATH + 'validated.tsv', sep='\t', write_path='/CommonVoice/Validated.tsv')
+    # dataset_quality_filter(read_path=PATH + 'train.tsv', sep='\t', write_path='/CommonVoice/Train.tsv')
+    # dataset_quality_filter(read_path=PATH + 'test.tsv', sep='\t', write_path='/CommonVoice/Test.tsv')
+    # dataset_quality_filter(read_path=PATH + 'dev.tsv', sep='\t', write_path='/CommonVoice/Dev.tsv')
+
+    ##### get the gender and age distribution charts for male and female
     # get_gender_age_distribution_chart("../data/Validated-Common-Voice-Speakers.csv")
     # get_gender_age_distribution_chart("../data/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
     # get_gender_age_distribution_chart("../data/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
 
-    # print("")
-
-    # get_train_datasets("../data/male_CV-FilteredAges-UniqueSpeakers.csv")
-    # get_train_datasets("../data/female_CV-FilteredAges-UniqueSpeakers.csv")
-
+    ##### build a number of datasets with different filter-sizes
     # get_train_datasets("../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Train.tsv/')
     # get_train_datasets("../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Train.tsv/')
-    #
+
     # get_train_datasets("../_datasets/CommonVoice/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Validated.tsv/')
     # get_train_datasets("../_datasets/CommonVoice/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv", '/CommonVoice/Validated.tsv/')
+
+    ##### check for unique-ness of speakers in between different source files:
+    ## TRAIN.TSV || VALIDATED.TSV
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv')
+
+    # ## TRAIN.TSV || TEST.TSV
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Test.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Test.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv')
+
+    # ## VALIDATED.TSV || TEST.TSV
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Validated.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Test.tsv: str/female_CV: str-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Validated.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Test.tsv/male_CV-FilteredAgesUniqueSpeakers.csv')
+
+    ## TRAIN.TSV || dev.tsv
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/dev.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/dev.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv')
+
+    # ## TRAIN.TSV || TEST.TSV
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Test.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/Test.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv')
+
+    # ## dev.tsv || TEST.TSV
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/dev.tsv/female_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Test.tsv/female_CV-FilteredAges-UniqueSpeakers.csv')
+    # find_intersecting_speakers(set1='../_datasets/CommonVoice/dev.tsv/male_CV-FilteredAges-UniqueSpeakers.csv',
+    #                            set2='../_datasets/CommonVoice/Test.tsv/male_CV-FilteredAges-UniqueSpeakers.csv')
+    ##### overlap between:
+        # VALIDATED.TSV + TEST.TSV; VALIDATED.TSV + TRAIN.TSV
+
+#########################
+
+    ##### Merge dev.tsv and train.tsv
+    # df_1 = pd.read_csv("../_datasets/CommonVoice/Dev.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
+    # df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAges-UniqueSpeakers.csv")
+
+    # unique_male_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
+
+    # df_1 = pd.read_csv("../_datasets/CommonVoice/Dev.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
+    # df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAges-UniqueSpeakers.csv")
+
+    # unique_female_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
+
+    # unique_female_speakers_union_df.to_csv(
+    #     path_or_buf="../_datasets/CommonVoice/dev-train-set/unique-female-speakers.csv",
+    #     encoding="UTF-8", header=True)
+    # unique_male_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/dev-train-set/unique-male-speakers.csv",
+    #                                      encoding="utf-8", header=True)
+
+    # df_1 = pd.read_csv("../_datasets/CommonVoice/Dev.tsv/male_CV-FilteredAgesAndGenders.csv")
+    # df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/male_CV-FilteredAgesAndGenders.csv")
+
+    # unique_male_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
+
+    # df_1 = pd.read_csv("../_datasets/CommonVoice/Dev.tsv/female_CV-FilteredAgesAndGenders.csv")
+    # df_2 = pd.read_csv("../_datasets/CommonVoice/Train.tsv/female_CV-FilteredAgesAndGenders.csv")
+
+    # unique_female_speakers_union_df = pd.concat([df_1, df_2]).drop_duplicates().reset_index(drop=True)
+
+    # unique_female_speakers_union_df.to_csv(
+    #     path_or_buf="../_datasets/CommonVoice/dev-train-set/female-speakers-clips.csv",
+    #     encoding="UTF-8", header=True)
+    # unique_male_speakers_union_df.to_csv(path_or_buf="../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv",
+    #                                      encoding="utf-8", header=True)
+
+    # get_gender_age_distribution_chart('../_datasets/CommonVoice/dev-train-set/unique-male-speakers.csv')
+    # get_gender_age_distribution_chart('../_datasets/CommonVoice/dev-train-set/unique-female-speakers.csv')
 
     # trainsets = glob.glob("../data/Trainsets/*.csv")
     # for file in trainsets:
@@ -274,8 +350,9 @@ def finished_tasks():
     # df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
     # df = pd.read_csv(filepath_or_buffer='../data/Trainsets/CV-male-50-Trainset.csv')
 
-import glob
+    import glob
 
-
+# get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
+# get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/female-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
 
 
