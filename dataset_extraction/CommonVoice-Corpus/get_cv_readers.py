@@ -352,7 +352,37 @@ def finished_tasks():
 
     import glob
 
+# df = pd.read_csv(filepath_or_buffer='../_datasets/CommonVoice/dev-train-set/female-speakers-clips.csv', header=0)
+# df2 = pd.read_csv(filepath_or_buffer='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv', header=0)
+# df1 = pd.concat([df, df2], axis=0)
+# df1.to_csv(path_or_buf='../_datasets/CommonVoice/dev-train-set/all-speakers-clips.csv', header=True)
+
+def delete_index_columns_by_column_index():
+    ###### delete countless index rows generated along the way
+    df3 = pd.read_csv(filepath_or_buffer='../_datasets/CommonVoice/dev-train-set/all-speakers-clips.csv', header=0)
+    column_numbers = [x for x in range(df3.shape[1])]  # list of columns' integer indices
+
+    column_numbers.remove(0) #removing column integer index 0
+    column_numbers.remove(1) #removing column integer index 0
+    df3 = df3.iloc[:, column_numbers] #return all columns except the 0th column
+
+    df3.to_csv(path_or_buf='../_datasets/CommonVoice/dev-train-set/all-speakers-clips.csv', header=True)
+    # https://stackoverflow.com/questions/20297317/python-dataframe-pandas-drop-column-using-int
+
+
+def get_all_accents(filepath: str):
+    df1 = pd.read_csv(filepath_or_buffer=filepath, header=0)
+
+    a = df1['accents'].unique()
+
+    ACCENTS = set()
+    for accent in a:
+        ACCENTS.add(accent)
+
+    a = list(ACCENTS)
+    print(a)
+
+
 # get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
 # get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/female-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
-
 
