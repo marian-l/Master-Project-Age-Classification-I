@@ -10,9 +10,9 @@ def parse_xml(file_path):
     root = tree.getroot()
 
     data = {
-        "speaker_id": root.findtext("speaker_id"),
+        "client_id": root.findtext("speaker_id"),
         "gender": root.findtext("gender"),
-        "ageclass": root.findtext("ageclass"),
+        "age": root.findtext("ageclass"),
         "sentence_id": root.findtext("sentence_id"),
     }
 
@@ -44,6 +44,7 @@ def get_distribution_of_speakers():
     plt.rcParams["figure.figsize"] = [11, 3.50]
     plt.rcParams["figure.autolayout"] = True
 
+
     age_distribution = df.groupby('ageclass').size()
     age_distribution.plot(kind='bar')
 
@@ -63,6 +64,14 @@ df = get_distribution_of_speakers()
 
 directory_path = "D:\Sprachdaten\german-speechdata-package-v2\german-speechdata-package-v2\\test"
 df = get_distribution_of_speakers()
+
+# directory_path = "D:\Sprachdaten\german-speechdata-package-v2\german-speechdata-package-v2\\train"
+# xml_files = glob.glob(directory_path + '\*.xml')
+# df = parse_multiple_xml(xml_files)
+# df.to_csv(path_or_buf='../_datasets/GermanSpeechDat/Train/train.csv')
+
+
+
 
 # Directory containing the XML files
 
