@@ -1,29 +1,38 @@
 import pandas
-from datasets import Dataset, DatasetDict
+from datasets import Dataset, DatasetDict, Audio, Features, ClassLabel, Value
 import torch
 import torchaudio
 import torch_directml
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2Processor, TrainingArguments, Trainer
 
-# print(torch.__version__)
-# print(torchaudio.__version__)
+
 
 audio_df = pandas.read_csv(filepath_or_buffer='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv',
                            header=0, encoding='utf-8')
-audio_df = audio_df[['path', 'age']]
+audio_df = audio_df[['path', 'age', 'gender', 'client_id', 'accents']]
 
-audio_file_paths = 'D:\Sprachdaten\cv-corpus-17.0-2024-03-15-de\cv-corpus-17.0-2024-03-15\de\clips\\' + audio_df['path']
-age_labels = audio_df['age']
+audio_df['path'] = 'D:\Sprachdaten\cv-corpus-17.0-2024-03-15-de\cv-corpus-17.0-2024-03-15\de\clips\\' + audio_df['path']
 
+dataset = Dataset.from_pandas(audio_df)
+dataset = dataset.cast_column("path", Audio(sampling_rate=16000))
+
+print(dataset)
+
+features = Features({
+    'path': Audio(sampling_rate=16000),
+    'client_id': Value(dtype='string'),
+    'gender': ClassLabel(names=['male_masculine', 'female_feminine']),
+    'age': ClassLabel(names=["teens", "twenties", "thirties", "fourties", "fifties", "sixties", "seventies", "eighties"]),
+    'accents': ClassLabel(names=ACCENTS)
+})
+
+dataset = Dataset.from_pandas(audio_df, features=features)
 
 def load_audio(batch):
     waveform, sample_rate = torchaudio.load(batch['file'])
     batch['audio'] = {'array': waveform.numpy(), 'sampling_rate': sample_rate}
     return batch
 
-
-data = {'file': audio_file_paths, 'label': age_labels}
-dataset = Dataset.from_dict(data)
 
 dataset = dataset.map(load_audio)
 
@@ -40,12 +49,14 @@ dataset = DatasetDict({
 processor = Wav2Vec2Processor.from_pretrained('facebook/wav2vec2-base')
 model = Wav2Vec2ForSequenceClassification.from_pretrained('facebook/wav2vec2-base', num_labels=1)
 
+
 # Preprocess function
 def preprocess_function(batch):
     inputs = processor(batch['audio']['array'], sampling_rate=batch['audio']['sampling_rate'], return_tensors='pt')
     batch['input_values'] = inputs.input_values[0]
     batch['labels'] = torch.tensor(batch['label'], dtype=torch.float32)
     return batch
+
 
 # Apply preprocessing
 encoded_dataset = dataset.map(preprocess_function, remove_columns=['file', 'audio'])
