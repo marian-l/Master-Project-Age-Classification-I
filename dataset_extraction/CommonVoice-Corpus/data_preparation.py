@@ -5,8 +5,6 @@ import torchaudio
 import torch_directml
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2Processor, TrainingArguments, Trainer
 
-
-
 audio_df = pandas.read_csv(filepath_or_buffer='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv',
                            header=0, encoding='utf-8')
 audio_df = audio_df[['path', 'age', 'gender', 'client_id', 'accents']]
