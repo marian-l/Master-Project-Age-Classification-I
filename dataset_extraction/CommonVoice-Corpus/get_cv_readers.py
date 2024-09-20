@@ -50,12 +50,23 @@ def get_gender_age_distribution_chart(read_path: str, write_path: str = ""):
     age_distribution = dict(age_distribution)
     gender_distribution = dict(gender_distribution)
 
+    # plt.rcParams["figure.figsize"] = [11, 3.50]
+    # plt.rcParams["figure.autolayout"] = True
+#
+    # fig, axs = plt.subplots(1, 1)
+    # axs[0].bar(list(age_distribution.keys()), list(age_distribution.values()))
+    # axs[1].bar(list(gender_distribution.keys()), list(gender_distribution.values()))
+
     plt.rcParams["figure.figsize"] = [11, 3.50]
     plt.rcParams["figure.autolayout"] = True
 
-    fig, axs = plt.subplots(1, 2)
-    axs[0].bar(list(age_distribution.keys()), list(age_distribution.values()))
-    axs[1].bar(list(gender_distribution.keys()), list(gender_distribution.values()))
+    fig, ax = plt.subplots()  # Create a single subplot
+
+    # Plot the age distribution
+    ax.bar(list(age_distribution.keys()), list(age_distribution.values()))
+    ax.set_xlabel('Age Ranges')  # X-axis label
+    ax.set_ylabel('Number of Participants')  # Y-axis label
+    ax.set_title('Age Distribution')  # Title
 
     plt.show()
 
@@ -382,6 +393,8 @@ def get_all_accents(filepath: str):
     a = list(ACCENTS)
     print(a)
 
+get_gender_age_distribution_chart("C:\\Users\maria\Dokumente\codes\Python\HSRM\Age_Classification_Project\dataset_extraction\_datasets\CommonVoice\dev-train-set\\unique-male-speakers.csv")
+get_gender_age_distribution_chart("C:\\Users\maria\Dokumente\codes\Python\HSRM\Age_Classification_Project\dataset_extraction\_datasets\CommonVoice\dev-train-set\\unique-female-speakers.csv")
 
 # get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/male-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
 # get_each_speakers_clips(read_path='../_datasets/CommonVoice/dev-train-set/female-speakers-clips.csv', write_path='/CommonVoice/dev-train-set/')
