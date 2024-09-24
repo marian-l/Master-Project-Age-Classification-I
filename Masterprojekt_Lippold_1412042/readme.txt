@@ -572,3 +572,5 @@ Es empfiehlt sich, dafür die benötigte GPU-Zeit zu erwerben, da das Erstellen 
 Alle Modelle und Datensätze, die für dieses Paper erstellt wurden, sind auf https://huggingface.co/mlmarian einsehbar. 
 Einige Trainings- und Evaluationsläufe wurden auf https://wandb.ai/marian-lippold-hochschule-rheinmain/huggingface?nw=nwusermarianlippold festgehalten. 
 Einladungen für das Projekt sind an Hr. Bahrololloomi und Hr. Dr. Staab verschickt worden.
+Zuletzt ist auch ein Github Repository einsehbar:
+https://github.com/marian-l/Master-Project-Age-Classification-I
