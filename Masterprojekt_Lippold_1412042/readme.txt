@@ -561,12 +561,12 @@ Installationsanleitung (Google Colab):
 !pip install --upgrade wandb
 !pip install scikit-learn
 
-Lokal auszufï¿½hren sind die Skripte im Ordner "Datensatz". Die Datei "get_cv_readers" enthï¿½lt dabei alle Funktionen, die zur Sichtung, Analyse, Bereinigung und Unterteilung in Sub-Datensï¿½tze notwendig gewesen sind. 
+Lokal auszufï¿½hren sind die Skripte im Ordner "Code\Local DataPreparation Scripts". Die Datei "get_cv_readers" enthï¿½lt dabei alle Funktionen, die zur Sichtung, Analyse, Bereinigung und Unterteilung in Sub-Datensï¿½tze notwendig gewesen sind. 
 Hier werden .csv-Dateien erzeugt, die als DataFrame die Label sowie den Pfad zur jeweiligen Audiodatei. 
 AuÃŸerdem wurden hier die Kennzahlen des Mozilla CommonVoice-Datensatzes erzeugt. 
 Das File "data_preparation" beinhaltet die Funktionen, mit denen die Datensatz-Dateien in .arrow Format erzeugt werden, sodass diese dann auf Huggingface hochgeladen werden kï¿½nnen. 
 
-Beispielbefehle oder Hinweise gibt es nicht, die Trainings mï¿½ssen nur in der Google-Colab gestartet werden, wï¿½hrend eine GPU-Laufzeit ausgewï¿½hlt ist. 
+Es gibt keine Beispielbefehle für die Notebooks, da diese in Gänze im Ordner GoogleColabNotebooks vorliegen. Zuerst müssen die Pakete in der Datei "pip install" installiert werden, dann kann ein Notebook in eine Code-Zelle kopiert und ausgeführt werden. Datensätze und Modelle werden direkt von Huggingface bezogen. Eine Laufzeit mit GPU ist notwendig.
 Es empfiehlt sich, dafÃ¼r die benÃ¶tigte GPU-Zeit zu erwerben, da das Erstellen mehrerer Google-Accounts zur Ausnutzung der GPU-Zeiten gegen die Nutzungsbestimmungen verstÃ¶ÃŸt und die entsprechenden Notebooks von Google gebannt werden.
 
 Alle Modelle und DatensÃ¤tze, die fÃ¼r dieses Paper erstellt wurden, sind auf https://huggingface.co/mlmarian einsehbar. 
